@@ -35,6 +35,8 @@ jobs:
         run: |
           npm version ${{ steps.check-release.outputs.new_version }} --workspaces=true --allow-same-version=false
           git add .
+          git config user.email "action@github.com"
+          git config user.name "Github Action[bot]"
           git commit -m "${{ steps.check-release.outputs.new_version }}"
           git tag ${{ steps.check-release.outputs.new_version }}
           git push origin --tags
