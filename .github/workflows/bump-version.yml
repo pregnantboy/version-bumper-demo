@@ -8,7 +8,8 @@ on:
       - production
 
 permissions: 
-   pull-requests: write 
+   pull-requests: write
+   contents: write
 
 jobs:
   check-if-release-pr:
