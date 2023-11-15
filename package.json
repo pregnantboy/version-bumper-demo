@@ -1,0 +1,10 @@
+{
+  "name": "version-bumper-demo",
+  "version": "1.0.0",
+  "description": "For testing version bumper CI",
+  "author": "pregnantboy",
+  "license": "ISC",
+  "workspaces": [
+    "packages/*"
+  ]
+}
