@@ -21,27 +21,22 @@ jobs:
         run: |
           new_version=$(echo "${{ github.event.pull_request.title }}" | cut -d' ' -f2)
           if [[ ! $new_version =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Version number not found or invalid. Exiting."
+            echo "Version number ($new_version) not found or invalid. Exiting."
             exit 1
           fi
+          echo $new_version
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Check if version number changed
-        id: check-version
-        run: |
-          current_version=$(cat package.json | jq -r '.version')
-          if [[ $current_version == ${{ steps.check-release.outputs.new_version }} ]]; then
-            echo "New version is the same as current version. Exiting."
-            exit 1
-          fi
-
       - name: Bump version number
         id: bump-version
         run: |
-          npm version ${{ steps.check-release.outputs.new_version }} --workspaces
+          npm version ${{ steps.check-release.outputs.new_version }} --workspaces=true --allow-same-version=false
+          git add .
+          git commit -m "${{ steps.check-release.outputs.new_version }}"
+          git tag ${{ steps.check-release.outputs.new_version }}
           git push origin --tags
 
       - name: Comment on PR
@@ -52,5 +47,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Version bumped to ${{ steps.check-release.outputs.new_version }}'
+              body: 'Version bumped to ${{ steps.check-release.outputs.new_version }} :rocket:'
             })
