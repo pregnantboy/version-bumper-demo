@@ -1,4 +1,4 @@
-name: Version Bumper
+name: Version Bump
 
 on:
   pull_request_review:
@@ -7,17 +7,17 @@ on:
     branches:
       - production
 
-permissions: 
-   pull-requests: write
-   contents: write
+permissions:
+  pull-requests: write
+  contents: write
 
 jobs:
-  check-if-release-pr:
+  version-bump:
     runs-on: ubuntu-latest
     steps:
       - name: Get version number from pull request title
         id: check-release
-        if: startsWith(github.event.pull_request.title, 'Release') && github.event.review.state != 'APPROVED'
+        if: startsWith(github.event.pull_request.title, 'Release') && github.event.review.state == 'APPROVED'
         run: |
           new_version=$(echo "${{ github.event.pull_request.title }}" | cut -d' ' -f2)
           if [[ ! $new_version =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -38,7 +38,7 @@ jobs:
           npm version ${{ steps.check-release.outputs.new_version }} --workspaces=true --allow-same-version=false
           git add .
           git config user.email "action@github.com"
-          git config user.name "Github Action[bot]"
+          git config user.name "Version bump[bot]"
           git commit -m "${{ steps.check-release.outputs.new_version }}"
           git tag ${{ steps.check-release.outputs.new_version }}
           git push
@@ -52,5 +52,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Version bumped to ${{ steps.check-release.outputs.new_version }} :rocket:'
+              body: 'Version bumped to **${{ steps.check-release.outputs.new_version }}** :rocket:'
             })
